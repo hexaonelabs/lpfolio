@@ -49,6 +49,7 @@ import {
   linkOutline,
   swapHorizontalOutline,
   alertCircleOutline,
+  openOutline,
 } from 'ionicons/icons';
 import {
   calculateRelativeAPY,
@@ -134,6 +135,7 @@ export class HomePage implements OnInit {
       linkOutline,
       swapHorizontalOutline,
       alertCircleOutline,
+      openOutline,
     });
     this.positions$ = this.uniswapService.allPositions$.pipe(
       tap((positions) => {
