@@ -1,0 +1,390 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="fade-toolbar">
+    <ion-title color="primary">LPfolio</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-grid [fixed]="true" class="ion-no-padding ion-margin-bottom">
+    <!-- header section -->
+    <ion-row>
+      <ion-col>
+        <ion-header collapse="condense">
+          <ion-toolbar style="--background: transparent">
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col class="ion-padding-horizontal">
+                  <ion-text color="primary" class="ion-no-margin">
+                    <h1>LPfolio</h1>
+                  </ion-text>
+                  <p class="ion-no-margin">
+                    Track your LP positions and performance.
+                  </p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-toolbar>
+        </ion-header>
+      </ion-col>
+    </ion-row>
+
+    <!-- Inpiut section -->
+    <ion-row>
+      <ion-col>
+        <!--  -->
+        <ion-card class="address-card">
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-input
+                    label="EVM Address"
+                    label-placement="floating"
+                    [(ngModel)]="address"
+                    placeholder="Enter Ethereum address (0x...)"
+                  ></ion-input>
+                </ion-col>
+                <ion-col size="auto" class="ion-padding-start">
+                  <ion-button
+                    (click)="fetchPositions()"
+                    [disabled]="isLoading"
+                    expand="block"
+                  >
+                    <ion-icon name="search-outline" />
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!--  Resume Section -->
+    <ion-row class="resume-container">
+      <ion-col size="12" size-md="6" size-lg="3">
+        <ion-card>
+          <ion-card-header>
+            <ion-label color="medium">Total Liquidity</ion-label>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-card-title color="primary">
+                  @if(!isLoading) {
+                    {{ totalLiquidity | currency: 'USD': 'symbol': '1.2-2'}}
+                  } @else {
+                    <ion-skeleton-text
+                      animated="true"
+                      style="width: 100px; height: 38px" />
+                  }
+                  </ion-card-title>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>Deposited liquidity</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="3">
+        <ion-card>
+          <ion-card-header>
+            <ion-label color="medium">Total Fees</ion-label>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-card-title color="primary">
+                    @if(!isLoading) {
+                      {{ totalFees | currency: 'USD': 'symbol': '1.2-2'}}
+                    } @else {
+                      <ion-skeleton-text
+                        animated="true"
+                        style="width: 100px; height: 38px" />
+                    }
+                  </ion-card-title>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>Earned fees</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="3">
+        <ion-card>
+          <ion-card-header>
+            <ion-label color="medium">Open LP Position</ion-label>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-card-title color="primary">
+                    @if(!isLoading) {
+                      {{(activePositions$|async)?.length}} / {{ (positions$|async)?.length }}
+                    } @else {
+                      <ion-skeleton-text
+                        animated="true"
+                        style="width: 100px; height: 38px" />
+                    }
+                  </ion-card-title>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>Currently active</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="3">
+        <ion-card>
+          <ion-card-header>
+            <ion-label color="medium">Total APY</ion-label>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-card-title color="primary">
+                    @if(!isLoading) {
+                      {{ totalAPY }}%
+                    } @if (isLoading) {
+                      <ion-skeleton-text
+                        animated="true"
+                        style="width: 100px; height: 38px" />
+                    }
+                  </ion-card-title>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>Cumulative APY</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Positions Section -->
+    <ion-row>
+      <ion-col>
+        <!-- <div class="network-selector ion-margin-bottom">
+            <ion-segment [(ngModel)]="selectedNetwork" (ionChange)="onNetworkChange($event)">
+              @for (network of networks; track network.id) {
+                <ion-segment-button [value]="network.id">
+                  {{ network.name }}
+                </ion-segment-button>
+              }
+            </ion-segment>
+          </div> -->
+
+        @if (positions$|async; as positions) { @if(positions.length === 0 &&
+        !errorMessage && isLoading) {
+        <div class="loading-container">
+          <ion-spinner name="circular"></ion-spinner>
+          <p>Fetching Uniswap V3 positions...</p>
+        </div>
+        } @if (positions.length === 0 && !errorMessage && !isLoading) {
+        <div class="empty-state">
+          <ion-icon name="walletOutline" size="large"></ion-icon>
+          <h3>No Positions Found</h3>
+          <p>Enter an EVM address to view Uniswap V3 positions</p>
+        </div>
+        }
+        <div class="positions-container">
+          @for (position of positions; track position.id) {
+          <ion-card class="position-card ion-margin-bottom">
+            <ion-card-header>
+              <ion-grid style="width: 100%">
+                <ion-row class="ion-align-items-center">
+                  <ion-col size="auto">
+                    <div class="token-pair">
+                      <img
+                        class="token-icon"
+                        [src]="position.token0.logoURI"
+                        [alt]="position.token0.symbol"
+                      />
+                      <img
+                        class="token-icon"
+                        [src]="position.token1.logoURI"
+                        [alt]="position.token1.symbol"
+                      />
+                    </div>
+                  </ion-col>
+                  <ion-col>
+                    <ion-card-title>
+                      {{ position.token0.symbol }}/{{ position.token1.symbol }}
+                    </ion-card-title>
+                  </ion-col>
+                  <ion-col size="auto">
+                    <ion-text [color]="getApyColor(position.apy)">
+                      <b>
+                        {{ position.apy.toFixed(2) }}%
+                      </b>
+                    </ion-text>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              <!-- <ion-chip [color]="position.network === 'arbitrum' ? 'secondary' : position.network === 'base' ? 'tertiary' : 'primary'">
+                      <img [src]="getNetworkIcon(position.network)" alt="Network" />
+                      {{ position.network === 'mainnet' ? 'Ethereum' : (position.network.charAt(0).toUpperCase() + position.network.slice(1)) }}
+                    </ion-chip> -->
+            </ion-card-header>
+
+            <ion-card-content>
+              <ion-grid>
+                <ion-row class="ion-align-items-top">
+                  <ion-col>
+                    <ion-label color="medium">
+                      <h3>Liquidity</h3>
+                    </ion-label>
+                    <ion-text>
+                      <span>
+                        <b>
+                          {{ position.liquidity | currency: 'USD': 'symbol': '1.2-2' }}
+                        </b>
+                      </span><br />
+                      <span>
+                        <small>
+                          {{ position.token0Amount }} {{ position.token0.symbol
+                          }} / {{ position.token1Amount }} {{
+                          position.token1.symbol }}
+                        </small>
+                      </span>
+                    </ion-text>
+                  </ion-col>
+                  <ion-col>
+                    <ion-label color="medium">
+                      <h3>Fees Earned</h3>
+                    </ion-label>
+                    <ion-text *ngIf="position.fees as fees">
+                      <span
+                        ><b>
+                          {{ (fees?.totalAllFeesUSD||0) | currency: 'USD':
+                        'symbol': '1.2-2' }}
+                        </b></span
+                      ><br />
+                      <span>
+                        <small>
+                          {{ (fees?.token0?.unclaimed || 0) +
+                          (fees?.token0?.claimed || 0) | number: '1.2-3'}} {{
+                          position.token0.symbol }} / {{
+                          (fees?.token1?.unclaimed || 0) +
+                          (fees?.token1?.claimed || 0) | number: '1.2-3'}} {{
+                          position.token1.symbol }}
+                        </small>
+                      </span>
+                    </ion-text>
+                  </ion-col>
+                  <ion-col size="12" size-md="4">
+                    <!-- <div>
+                              <span>Min. {{ formatPrice(position.lowerPrice, priceToggles[position.id]) }} {{ position.token0.symbol }}/{{ position.token1.symbol }}</span>
+                              <br/>
+                              <span>Max. {{ formatPrice(position.upperPrice, priceToggles[position.id]) }} {{ position.token0.symbol }}/{{ position.token1.symbol }}</span>
+                              <br/>
+                              <span>Cur. {{ formatPrice(position.currentPrice, priceToggles[position.id]) }} {{ position.token0.symbol }}/{{ position.token1.symbol }}</span>
+                            </div> -->
+                    <div class="range-visualization">
+                      <div
+                        class="range-bar"
+                        [style.--range-start]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
+                        [style.--range-end]="getPriceRangePercentage(position, position.upperPrice) + '%'"
+                      >
+                        <div
+                          class="range-indicator"
+                          [style.left]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
+                        ></div>
+                        <div
+                          class="current-price-indicator"
+                          [style.left]="getPriceRangePercentage(position, position.currentPrice) + '%'"
+                        ></div>
+                        <div
+                          class="range-indicator"
+                          [style.left]="getPriceRangePercentage(position, position.upperPrice) + '%'"
+                        ></div>
+                      </div>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+            <ion-button
+              color="primary"
+              expand="full"
+              class="ion-no-margin ion-margin-top"
+              (click)="openPositionDetails(position)"
+            >
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+              <span>View Position</span>
+            </ion-button>
+
+          </ion-card>
+          }
+        </div>
+        } @else {
+        <div class="empty-state">
+          <ion-icon name="walletOutline" size="large"></ion-icon>
+          <h3>No Positions Found</h3>
+          <p>Enter an EVM address to view Uniswap V3 positions</p>
+        </div>
+        }
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- footer section -->
+  <ion-grid [fixed]="true" class="ion-text-center ion-no-padding ion-margin-top ">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" class="ion-padding-horizontal">
+        <ion-text color="medium">
+          <p>
+            <small>
+              LPfolio is not affiliated with Uniswap Labs or any other
+              third-party projects. It's an open-source project developed by HexaOne Labs to help
+              users track their LP positions and performances.  All datas are
+              fetched on chains and are not stored on any server. LPfolio is not
+              responsible for any losses or damages incurred while using this
+              application. Use at your own risk.
+            </small>
+          </p>
+          <p>
+            <small>
+              Made & use by
+              <a href="https://hexaonelabs.com/" target="_blank">HexaOneLabs</a>
+            </small>
+          </p>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-toast
+  [isOpen]="showToast"
+  [message]="errorMessage"
+  [duration]="3000"
+  [position]="'bottom'"
+  [color]="'danger'"
+  (didDismiss)="showToast = false"
+></ion-toast>
