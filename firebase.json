@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "target": "lpfolio",
+    "public": "dist/lpfolio/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
