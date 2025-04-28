@@ -237,9 +237,15 @@
                     </ion-card-title>
                   </ion-col>
                   <ion-col size="auto">
-                    <ion-text [color]="getApyColor(position.apy)">
-                      <b> {{ position.apy.toFixed(2) }}% </b>
-                    </ion-text>
+                    @if( position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper ) {
+                      <ion-text color="medium">
+                        <b>0%</b>
+                      </ion-text>
+                    } @else {
+                      <ion-text [color]="getApyColor(position.apy)">
+                        <b>{{ position.apy.toFixed(2) }}%</b>
+                      </ion-text>
+                    }
                   </ion-col>
                 </ion-row>
               </ion-grid>
