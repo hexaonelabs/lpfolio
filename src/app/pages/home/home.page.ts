@@ -34,6 +34,8 @@ import {
   IonCol,
   IonText,
   IonSkeletonText,
+  IonModal,
+  IonButtons,
 } from '@ionic/angular/standalone';
 import { StorageService } from '../../services/storage.service';
 import { UniswapService } from '../../services/uniswap.service';
@@ -50,6 +52,7 @@ import {
   swapHorizontalOutline,
   alertCircleOutline,
   openOutline,
+  closeOutline,
 } from 'ionicons/icons';
 import {
   calculateRelativeAPY,
@@ -58,6 +61,7 @@ import {
 import { map, Observable, tap } from 'rxjs';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
+import { TopPoolsComponent } from '../top-pools/top-pools.component';
 
 const UIElements = [
   IonContent,
@@ -92,12 +96,14 @@ const UIElements = [
   IonCol,
   IonText,
   IonSkeletonText,
+  IonModal,
+  IonButtons,
 ];
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ...UIElements],
+  imports: [CommonModule, FormsModule, ...UIElements, TopPoolsComponent],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
@@ -114,6 +120,8 @@ export class HomePage implements OnInit {
   totalAPY: number = 0;
   totalFees: number = 0;
   totalUnclaimedFees: number = 0;
+  isTopPoolsOpen: boolean = false;
+  filterTerm: string | undefined;
 
   networks: Network[] = [
     { id: 'all', name: 'All Networks' },
@@ -136,6 +144,7 @@ export class HomePage implements OnInit {
       swapHorizontalOutline,
       alertCircleOutline,
       openOutline,
+      closeOutline,
     });
     this.positions$ = this.uniswapService.allPositions$.pipe(
       tap((positions) => {
@@ -253,5 +262,10 @@ export class HomePage implements OnInit {
     const range = max - min;
     const result = ((value - min) / range) * 100;
     return Math.max(0, Math.min(100, result));
+  }
+
+  async filterTopPools($event: {
+    detail: { value: string }}) {
+    this.filterTerm = $event.detail.value;
   }
 }

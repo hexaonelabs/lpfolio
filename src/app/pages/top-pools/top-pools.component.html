@@ -1,0 +1,134 @@
+
+<ion-content>
+  <ion-grid>
+    @if(topPools) {
+    <ion-row>
+      @for(pool of (topPools|slice: min: max); track pool.pool) {
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-grid style="width: 100%">
+              <ion-row class="ion-align-items-center">
+                <!-- <ion-col size="auto">
+                  <div class="token-pair">
+                    <img
+                      class="token-icon"
+                      [src]="pool.symbol.split('-')[0].logoURI"
+                      [alt]="position.token0.symbol"
+                    />
+                    <img
+                      class="token-icon"
+                      [src]="position.token1.logoURI"
+                      [alt]="position.token1.symbol"
+                    />
+                  </div>
+                </ion-col> -->
+                <ion-col size-xs="12" size-md="auto">
+                  <ion-card-title>
+                    {{ pool.symbol }}
+                  </ion-card-title>
+                </ion-col>
+                <ion-col>
+                 {{pool.chain}}
+                </ion-col>
+                <ion-col class="ion-text-right">
+                  <ion-text color="primary">
+                    <b>{{ pool.apy.toFixed(2) }}%</b>
+                  </ion-text>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <!-- <ion-col>
+                    <ion-label color="medium">
+                      <h3>Address</h3>
+                    </ion-label>
+                    <ion-text>{{ pool.pool }}</ion-text>
+                  </ion-col> -->
+                <ion-col>
+                  <ion-label>
+                    <h3>TVL</h3>
+                  </ion-label>
+                  <ion-text>
+                    <b>{{
+                      pool.tvlUsd | currency : "USD" : "symbol" : "1.2-2"
+                    }}</b>
+                  </ion-text>
+                </ion-col>
+                <ion-col class="ion-text-right">
+                  <ion-label>
+                    <h3>24h/vol</h3>
+                  </ion-label>
+                  <ion-text
+                    ><b>{{
+                      pool.volumeUsd1d | currency : "USD" : "symbol" : "1.2-2"
+                    }}</b></ion-text
+                  >
+                </ion-col>
+                <ion-col class="ion-text-right">
+                  <ion-label>
+                    <h3>7d/vol</h3>
+                  </ion-label>
+                  <ion-text>
+                    <b>{{
+                      pool.volumeUsd7d | currency : "USD" : "symbol" : "1.2-2"
+                    }}</b>
+                  </ion-text>
+                </ion-col>
+                <!-- <ion-col class="ion-text-right">
+                  <ion-label>
+                    <h3>APY</h3>
+                  </ion-label>
+                  <ion-text color="primary">
+                    <b>{{ pool.apy | number : "1.2-2" }}%</b>
+                  </ion-text>
+                </ion-col> -->
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+          <ion-button
+            color="primary"
+            expand="full"
+            class="ion-no-margin ion-margin-top"
+            (click)="openPool(pool)"
+          >
+            View Pool
+            <ion-icon slot="end" name="open-outline"></ion-icon>
+          </ion-button>
+        </ion-card>
+      </ion-col>
+      }
+      @if(topPools.length === 0) {
+      <ion-col size="12">
+        <p class="ion-text-center">
+          No pools found. Please try with different value.
+        </p>
+      </ion-col>
+      }
+    </ion-row>
+    } @else {
+    <ion-row class="ion-justify-content-center ion-text-center">
+      <ion-col size="12">
+        <div class="loading-container">
+          <ion-spinner name="circular"></ion-spinner>
+          <p>Fetching Uniswap V3 Top Pools...</p>
+        </div>
+      </ion-col>
+    </ion-row>
+    }
+  </ion-grid>
+
+  <ion-infinite-scroll
+    threshold="25%"
+    (ionInfinite)="onInfiniscroll($any($event))"
+    class="ion-no-padding"
+    style="margin-top: 0px"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="circular"
+    ></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

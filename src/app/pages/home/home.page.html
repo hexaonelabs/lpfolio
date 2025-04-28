@@ -15,7 +15,7 @@
         <ion-header collapse="condense">
           <ion-toolbar style="--background: transparent">
             <ion-grid class="ion-no-padding">
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col class="ion-padding-horizontal">
                   <ion-text color="primary" class="ion-no-margin">
                     <h1>LPfolio</h1>
@@ -23,6 +23,18 @@
                   <p class="ion-no-margin">
                     Track your LP positions and performance.
                   </p>
+                </ion-col>
+                <ion-col size="auto">
+                  <ion-button
+                    class="ion-no-margin"
+                    fill="clear"
+                    color="primary"
+                    size="small"
+                    (click)="isTopPoolsOpen = true"
+                  >
+                    <ion-icon name="trophy-outline"></ion-icon>
+                    Top Pools
+                  </ion-button>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -412,6 +424,33 @@
     </ion-row>
   </ion-grid>
 </ion-content>
+
+<ion-modal 
+  [isOpen]="isTopPoolsOpen"
+  [cssClass]="'modal-fullscreen'"
+  (didDismiss)="isTopPoolsOpen = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="end">
+          <ion-button (click)="isTopPoolsOpen = false">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title color="primary">Top Pools</ion-title>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar
+        (ionInput)="filterTopPools($any($event))"
+        placeholder="Search"
+        debounce="300"
+        class="ion-no-padding"/>
+      </ion-toolbar>
+    </ion-header>
+    <!-- Pool details content goes here -->
+    <app-top-pools #AppTopPool [filterTerm]="filterTerm" />
+  </ng-template>
+</ion-modal>
 
 <ion-toast
   [isOpen]="showToast"
