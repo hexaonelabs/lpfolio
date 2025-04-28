@@ -75,13 +75,13 @@
               <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-card-title color="primary">
-                  @if(!isLoading) {
-                    {{ totalLiquidity | currency: 'USD': 'symbol': '1.2-2'}}
-                  } @else {
+                    @if(!isLoading) { {{ totalLiquidity | currency: 'USD':
+                    'symbol': '1.2-2'}} } @else {
                     <ion-skeleton-text
                       animated="true"
-                      style="width: 100px; height: 38px" />
-                  }
+                      style="width: 100px; height: 38px"
+                    />
+                    }
                   </ion-card-title>
                 </ion-col>
               </ion-row>
@@ -105,12 +105,12 @@
               <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-card-title color="primary">
-                    @if(!isLoading) {
-                      {{ totalFees | currency: 'USD': 'symbol': '1.2-2'}}
-                    } @else {
-                      <ion-skeleton-text
-                        animated="true"
-                        style="width: 100px; height: 38px" />
+                    @if(!isLoading) { {{ totalFees | currency: 'USD': 'symbol':
+                    '1.2-2'}} } @else {
+                    <ion-skeleton-text
+                      animated="true"
+                      style="width: 100px; height: 38px"
+                    />
                     }
                   </ion-card-title>
                 </ion-col>
@@ -135,12 +135,12 @@
               <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-card-title color="primary">
-                    @if(!isLoading) {
-                      {{(activePositions$|async)?.length}} / {{ (positions$|async)?.length }}
-                    } @else {
-                      <ion-skeleton-text
-                        animated="true"
-                        style="width: 100px; height: 38px" />
+                    @if(!isLoading) { {{(activePositions$|async)?.length}} / {{
+                    (positions$|async)?.length }} } @else {
+                    <ion-skeleton-text
+                      animated="true"
+                      style="width: 100px; height: 38px"
+                    />
                     }
                   </ion-card-title>
                 </ion-col>
@@ -165,12 +165,11 @@
               <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-card-title color="primary">
-                    @if(!isLoading) {
-                      {{ totalAPY }}%
-                    } @if (isLoading) {
-                      <ion-skeleton-text
-                        animated="true"
-                        style="width: 100px; height: 38px" />
+                    @if(!isLoading) { {{ totalAPY }}% } @if (isLoading) {
+                    <ion-skeleton-text
+                      animated="true"
+                      style="width: 100px; height: 38px"
+                    />
                     }
                   </ion-card-title>
                 </ion-col>
@@ -239,9 +238,7 @@
                   </ion-col>
                   <ion-col size="auto">
                     <ion-text [color]="getApyColor(position.apy)">
-                      <b>
-                        {{ position.apy.toFixed(2) }}%
-                      </b>
+                      <b> {{ position.apy.toFixed(2) }}% </b>
                     </ion-text>
                   </ion-col>
                 </ion-row>
@@ -262,9 +259,10 @@
                     <ion-text>
                       <span>
                         <b>
-                          {{ position.liquidity | currency: 'USD': 'symbol': '1.2-2' }}
-                        </b>
-                      </span><br />
+                          {{ position.liquidity | currency: 'USD': 'symbol':
+                          '1.2-2' }}
+                        </b> </span
+                      ><br />
                       <span>
                         <small>
                           {{ position.token0Amount }} {{ position.token0.symbol
@@ -282,7 +280,7 @@
                       <span
                         ><b>
                           {{ (fees?.totalAllFeesUSD||0) | currency: 'USD':
-                        'symbol': '1.2-2' }}
+                          'symbol': '1.2-2' }}
                         </b></span
                       ><br />
                       <span>
@@ -298,6 +296,9 @@
                     </ion-text>
                   </ion-col>
                   <ion-col size="12" size-md="4">
+                    <ion-label color="medium" class="ion-hide-md-down">
+                      <h3>Range</h3>
+                    </ion-label>
                     <!-- <div>
                               <span>Min. {{ formatPrice(position.lowerPrice, priceToggles[position.id]) }} {{ position.token0.symbol }}/{{ position.token1.symbol }}</span>
                               <br/>
@@ -305,26 +306,49 @@
                               <br/>
                               <span>Cur. {{ formatPrice(position.currentPrice, priceToggles[position.id]) }} {{ position.token0.symbol }}/{{ position.token1.symbol }}</span>
                             </div> -->
-                    <div class="range-visualization">
-                      <div
-                        class="range-bar"
-                        [style.--range-start]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
-                        [style.--range-end]="getPriceRangePercentage(position, position.upperPrice) + '%'"
-                      >
-                        <div
-                          class="range-indicator"
-                          [style.left]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
-                        ></div>
-                        <div
-                          class="current-price-indicator"
-                          [style.left]="getPriceRangePercentage(position, position.currentPrice) + '%'"
-                        ></div>
-                        <div
-                          class="range-indicator"
-                          [style.left]="getPriceRangePercentage(position, position.upperPrice) + '%'"
-                        ></div>
-                      </div>
-                    </div>
+                    <ion-grid class="ion-no-padding">
+                      <ion-row>
+                        <ion-col size="12">
+                          <div class="range-visualization">
+                            <div
+                              class="range-bar"
+                              [style.--range-start]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
+                              [style.--range-end]="getPriceRangePercentage(position, position.upperPrice) + '%'"
+                            >
+                              <div
+                                class="range-indicator"
+                                [style.left]="getPriceRangePercentage(position, position.lowerPrice) + '%'"
+                              ></div>
+                              <div
+                                class="current-price-indicator"
+                                [style.left]="getPriceRangePercentage(position, position.currentPrice) + '%'"
+                              ></div>
+                              <div
+                                class="range-indicator"
+                                [style.left]="getPriceRangePercentage(position, position.upperPrice) + '%'"
+                              ></div>
+                            </div>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col>
+                          <small>
+                            {{position.lowerPrice | number: '1.2-2'}}
+                          </small>
+                        </ion-col>
+                        <ion-col class="ion-text-center">
+                          <small>
+                            {{position.currentPrice | number: '1.2-2'}}
+                          </small>
+                        </ion-col>
+                        <ion-col class="ion-text-right">
+                          <small>
+                            {{position.upperPrice | number: '1.2-2'}}
+                          </small>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -335,10 +359,9 @@
               class="ion-no-margin ion-margin-top"
               (click)="openPositionDetails(position)"
             >
-            View Position
-            <ion-icon slot="end" name="open-outline"></ion-icon>
+              View Position
+              <ion-icon slot="end" name="open-outline"></ion-icon>
             </ion-button>
-
           </ion-card>
           }
         </div>
@@ -354,18 +377,22 @@
   </ion-grid>
 
   <!-- footer section -->
-  <ion-grid [fixed]="true" class="ion-text-center ion-no-padding ion-margin-top ">
+  <ion-grid
+    [fixed]="true"
+    class="ion-text-center ion-no-padding ion-margin-top"
+  >
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" class="ion-padding-horizontal">
         <ion-text color="medium">
           <p>
             <small>
               LPfolio is not affiliated with Uniswap Labs or any other
-              third-party projects. It's an open-source project developed by HexaOne Labs to help
-              users track their LP positions and performances.  All datas are
-              fetched on chains and are not stored on any server. LPfolio is not
-              responsible for any losses or damages incurred while using this
-              application. Use at your own risk.
+              third-party projects. It's an open-source project developed by
+              HexaOne Labs to help users track their LP positions and
+              performances. All datas are fetched on chains and are not stored
+              on any server. LPfolio is not responsible for any losses or
+              damages incurred while using this application. Use at your own
+              risk.
             </small>
           </p>
           <p>
