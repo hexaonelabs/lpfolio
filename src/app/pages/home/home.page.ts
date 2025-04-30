@@ -36,6 +36,7 @@ import {
   IonSkeletonText,
   IonModal,
   IonButtons,
+  IonRouterLink,
 } from '@ionic/angular/standalone';
 import { StorageService } from '../../services/storage.service';
 import { UniswapService } from '../../services/uniswap.service';
@@ -62,6 +63,7 @@ import { map, Observable, tap } from 'rxjs';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { TopPoolsComponent } from '../top-pools/top-pools.component';
+import { RouterLink } from '@angular/router';
 
 const UIElements = [
   IonContent,
@@ -103,7 +105,7 @@ const UIElements = [
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ...UIElements, TopPoolsComponent],
+  imports: [CommonModule, FormsModule, ...UIElements, TopPoolsComponent, RouterLink, IonRouterLink],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })

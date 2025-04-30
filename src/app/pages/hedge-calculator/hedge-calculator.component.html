@@ -25,6 +25,17 @@
     <ion-row>
       <ion-col>
         <app-calculator-form *ngIf="!hedgeResult" (formSubmitted)="onFormSubmitted($event)" />
+        <ion-button
+          *ngIf="!hedgeResult"
+          expand="block"
+          color="primary"
+          routerLink="/"
+          routerDirection="back"
+          class="ion-margin"
+          fill="none">
+          Back to LPfolio
+        </ion-button>
+        
         <app-results-display
           *ngIf="hedgeResult"
           [hedgeResult]="hedgeResult"

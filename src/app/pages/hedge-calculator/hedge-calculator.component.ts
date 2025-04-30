@@ -3,9 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CalculatorFormComponent } from './components/calculator-form/calculator-form.component';
 import { ResultsDisplayComponent } from './components/results-display/results-display.component';
-import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonRow, IonText, IonToolbar } from '@ionic/angular/standalone';
+import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonRouterLink, IonRow, IonText, IonToolbar } from '@ionic/angular/standalone';
 import { HedgeResult, UniswapLPPosition } from '../../models/uniswap-lp.model';
 import { HedgeCalculatorService } from '../../services/hedge-calculator.service';
+import { RouterLink } from '@angular/router';
 
 const UIElements = [
   IonContent,
@@ -28,6 +29,8 @@ const UIElements = [
     ReactiveFormsModule,
     CalculatorFormComponent,
     ResultsDisplayComponent,
+    RouterLink, 
+    IonRouterLink
   ],
 })
 export class HedgeCalculatorComponent  implements OnInit {
