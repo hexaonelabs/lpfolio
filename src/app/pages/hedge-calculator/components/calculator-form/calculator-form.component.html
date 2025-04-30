@@ -1,0 +1,98 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>LP Position</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <form [formGroup]="lpForm" (ngSubmit)="onSubmit()">
+      <ion-grid class="ion-no-padding ion-margin-bottom">
+        <ion-row>
+          <ion-col size="12">
+            <ion-label>Token Details</ion-label>
+          </ion-col>
+          <ion-col>
+              <ion-item>
+                <ion-label position="stacked">Token 0 Amount</ion-label>
+                <ion-input formControlName="token0Amount" type="number"></ion-input>
+                <ion-note slot="error" *ngIf="lpForm.get('token0Amount')?.invalid && lpForm.get('token0Amount')?.touched">
+                  Enter a valid amount
+                </ion-note>
+              </ion-item>
+    
+              <ion-item>
+                <ion-label position="stacked">Token 0 Price (USD)</ion-label>
+                <ion-input formControlName="token0Price" type="number"></ion-input>
+                <ion-note slot="error" *ngIf="lpForm.get('token0Price')?.invalid && lpForm.get('token0Price')?.touched">
+                  Enter a valid price
+                </ion-note>
+              </ion-item>
+    
+          </ion-col>
+          <ion-col>
+            
+            <ion-item>
+              <ion-label position="stacked">Token 1 Amount</ion-label>
+              <ion-input formControlName="token1Amount" type="number"></ion-input>
+              <ion-note slot="error" *ngIf="lpForm.get('token1Amount')?.invalid && lpForm.get('token1Amount')?.touched">
+                Enter a valid amount
+              </ion-note>
+            </ion-item>
+    
+            <ion-item>
+              <ion-label position="stacked">Token 1 Price (USD)</ion-label>
+              <ion-input formControlName="token1Price" type="number"></ion-input>
+              <ion-note slot="error" *ngIf="lpForm.get('token1Price')?.invalid && lpForm.get('token1Price')?.touched">
+                Enter a valid price
+              </ion-note>
+            </ion-item>
+    
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    
+      <ion-grid class="ion-no-padding ion-margin-bottom">
+        <ion-row>
+          <ion-col size="12">
+            <ion-label>Range Details</ion-label>
+          </ion-col>
+          <ion-col>
+            <ion-list>
+    
+              <ion-item>
+                <ion-label position="stacked">Entry Price</ion-label>
+                <ion-input formControlName="entryPrice" type="number"></ion-input>
+                <ion-note slot="error" *ngIf="lpForm.get('entryPrice')?.invalid && lpForm.get('entryPrice')?.touched">
+                  Enter a valid entry price
+                </ion-note>
+              </ion-item>
+              
+              <ion-item>
+                <ion-label position="stacked">Min Price (Range Lower)</ion-label>
+                <ion-input formControlName="minPrice" type="number"></ion-input>
+                <ion-note slot="error" *ngIf="lpForm.get('minPrice')?.invalid && lpForm.get('minPrice')?.touched">
+                  Enter a valid minimum price
+                </ion-note>
+              </ion-item>
+              
+              <ion-item>
+                <ion-label position="stacked">Max Price (Range Upper)</ion-label>
+                <ion-input formControlName="maxPrice" type="number"></ion-input>
+                <ion-note slot="error" *ngIf="lpForm.get('maxPrice')?.invalid && lpForm.get('maxPrice')?.touched">
+                  Enter a valid maximum price
+                </ion-note>
+              </ion-item>
+    
+            </ion-list>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    
+      <div class="submit-container">
+        <ion-button type="submit" expand="block" [disabled]="!lpForm.valid">
+          Calculate Hedge Position
+          <ion-icon name="calculator-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+    </form>
+  </ion-card-content>
+</ion-card>

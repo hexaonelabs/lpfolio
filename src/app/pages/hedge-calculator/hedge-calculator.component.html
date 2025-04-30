@@ -1,0 +1,46 @@
+<ion-content>
+  <ion-grid fixed class="ion-no-padding ion-margin-bottom">
+    <!-- header section -->
+    <ion-row>
+      <ion-col>
+        <ion-header collapse="condense">
+          <ion-toolbar style="--background: transparent">
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col class="ion-padding-horizontal">
+                  <ion-text color="primary" class="ion-no-margin">
+                    <h1>LP Hedge Calculator</h1>
+                  </ion-text>
+                  <p class="ion-no-margin">
+                    Calculate the optimal Perp position to hedge your Uniswap LP
+                  </p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-toolbar>
+        </ion-header>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <app-calculator-form *ngIf="!hedgeResult" (formSubmitted)="onFormSubmitted($event)" />
+        <app-results-display
+          *ngIf="hedgeResult"
+          [hedgeResult]="hedgeResult"
+          class="fade-in"
+        />
+        <ion-button
+          *ngIf="hedgeResult"
+          expand="block"
+          color="primary"
+          (click)="hedgeResult = null"
+          class="ion-margin"
+          fill="outline"
+        >
+          Reset
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

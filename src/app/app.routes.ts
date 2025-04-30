@@ -14,6 +14,10 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'hedge-calculator', 
+    loadComponent: () => import('./pages/hedge-calculator/hedge-calculator.component').then(m => m.HedgeCalculatorComponent)
+  },
+  {
     path: '**',
     redirectTo: '',
   },
