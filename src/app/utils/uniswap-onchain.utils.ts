@@ -52,12 +52,12 @@ export const UNISWAP_MARKETS: UNISWAP_MARKET[] = [
     factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
   },
-  {
-    chain: base,
-    name: "base",
-    factory: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
-    nftManager: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-  },
+  // {
+  //   chain: base,
+  //   name: "base",
+  //   factory: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
+  //   nftManager: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+  // },
 ];
 const nftPositionManagerAbi = parseAbi([
   "function balanceOf(address owner) view returns (uint256)",
@@ -108,7 +108,7 @@ export const getUniswapPositions = async (walletAddress: `0x${string}`, market: 
     return positions;
   } catch (error) {
     console.error(
-      "Error fetching positions form market " + market.name + ":",
+      "Error fetching positions form market " + market.name + " Network:",
       error
     );
     throw error;
@@ -319,14 +319,30 @@ const fetchPoolData = async (
     abi: poolAbi,
     client,
   });
-  const [slot0, poolLiquidity, feeGrowthGlobal0X128, feeGrowthGlobal1X128] =
-    await Promise.all([
-      poolContract.read["slot0"](),
-      poolContract.read["liquidity"](),
-      poolContract.read["feeGrowthGlobal0X128"](),
-      poolContract.read["feeGrowthGlobal1X128"](),
-    ]);
-
+  const [slot0, poolLiquidity, feeGrowthGlobal0X128, feeGrowthGlobal1X128]  = await client.multicall({
+    contracts: [
+      {
+        ...poolContract,
+        functionName: 'slot0',
+      },
+      {
+        ...poolContract,
+        functionName: 'liquidity'
+      },
+      {
+        ...poolContract,
+        functionName: 'feeGrowthGlobal0X128'
+      },
+      {
+        ...poolContract,
+        functionName: 'feeGrowthGlobal1X128'
+      }
+    ]
+  }).then((results) => {
+    return results.map(({result}) => {
+      return result;
+    });
+  });
   return {
     slot0,
     poolLiquidity,
@@ -424,8 +440,27 @@ const formatPositionData = async (
     abi: poolAbi,
     client,
   });
-  const lower = (await poolContract.read["ticks"]([position.tickLower])) as any;
-  const upper = (await poolContract.read["ticks"]([position.tickUpper])) as any;
+  // const lower = (await poolContract.read["ticks"]([position.tickLower])) as any;
+  // const upper = (await poolContract.read["ticks"]([position.tickUpper])) as any;
+  const { lower, upper } = await client.multicall({
+    contracts: [
+      {
+        ...poolContract,
+        functionName: "ticks",
+        args: [position.tickLower],
+      },
+      {
+        ...poolContract,
+        functionName: "ticks",
+        args: [position.tickUpper],
+      },
+    ],
+  }).then((results) => {
+    return {
+      lower: results[0].result as any[],
+      upper: results[1].result as any[],
+    };
+  });
   const tickCurrent = v3Position.pool.tickCurrent;
   const feeGrowthGlobalX128 = position.feeGrowthGlobal0X128;
   let feeGrowthBelowX128, feeGrowthAboveX128;
@@ -441,16 +476,9 @@ const formatPositionData = async (
   } else {
     feeGrowthAboveX128 = feeGrowthGlobalX128 - upper[2];
   }
-  const feeGrowthInsideX128 =
-    feeGrowthGlobalX128 - feeGrowthBelowX128 - feeGrowthAboveX128;
 
   const token0 = await getToken(chainId, token0Data.id);
   const token1 = await getToken(chainId, token1Data.id);
-  // const unclaimedFees = calculateFeesEarned(
-  //   position.liquidity,
-  //   feeGrowthInsideX128,
-  //   position.feeGrowthInside0LastX128
-  // );
   const fees = await getPositionFeesAmountFromNftId(
     position.tokenId,
     chainId
