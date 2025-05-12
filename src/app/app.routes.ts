@@ -18,6 +18,20 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/hedge-calculator/hedge-calculator.component').then(m => m.HedgeCalculatorComponent)
   },
   {
+    path: 'badge',
+    loadComponent: () =>
+      import('./pages/badge-page/badge-page.component').then(
+        (m) => m.BadgePageComponent
+      ),
+  },
+  {
+    path: 'simulate',
+    loadComponent: () =>
+      import('./pages/simulate/simulate.component').then(
+        (m) => m.SimulateComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

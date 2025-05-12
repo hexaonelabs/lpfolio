@@ -281,6 +281,21 @@
                       </small>
                     </ion-text>
                   </ion-col>
+                  <ion-col size="auto" class="ion-no-padding">
+                    <ion-button
+                      fill="clear"
+                      color="primary"
+                      size="small"
+                      routerLink="/badge"
+                      routerDirection="forward"
+                      [queryParams]="{
+                        chainId: position.chainId,
+                        tokenId: position.id,
+                      }"
+                    >
+                      <ion-icon size="small" name="open-outline"></ion-icon>
+                    </ion-button>
+                  </ion-col>
                 </ion-row>
               </ion-grid>
               <!-- <ion-chip [color]="position.network === 'arbitrum' ? 'secondary' : position.network === 'base' ? 'tertiary' : 'primary'">

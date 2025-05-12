@@ -259,7 +259,7 @@ const processAllPositions = async (
   return positions;
 };
 
-const getPositionDetails = async (
+export const getPositionDetails = async (
   nftContract: any,
   tokenId: bigint
 ): Promise<PositionRaw> => {
@@ -294,7 +294,7 @@ const getPositionDetails = async (
   };
 };
 
-const fetchPoolData = async (
+export const fetchPoolData = async (
   position: PositionRaw,
   chainId: number
 ): Promise<PoolDataRaw | null> => {
@@ -352,7 +352,7 @@ const fetchPoolData = async (
   } as PoolDataRaw;
 };
 
-const buildPositionData = async (
+export const buildPositionData = async (
   position: PositionRaw,
   poolData: PoolDataRaw,
   chainId: number
@@ -593,7 +593,7 @@ function getTickAtSqrtRatio(sqrtPriceX96: number): number {
   return tick;
 }
 
-const getPositionFeesAmountFromNftId = async (
+export const getPositionFeesAmountFromNftId = async (
   nftId: bigint,
   chainId: number,
   defaultBlock = "latest"
@@ -621,7 +621,7 @@ const getPositionFeesAmountFromNftId = async (
       ,
       ,
       ,
-      ,
+      liquidity,
     ] = (await positionManagerContract.read["positions"]([nftId])) as [
       number,
       string,
@@ -692,11 +692,13 @@ const getPositionFeesAmountFromNftId = async (
     });
     return {
       token0: {
+        address: token0Address,
         claimed: amount0Claimed,
         unclaimed: unclaimedFee0,
         totalAmount: amount0Claimed + unclaimedFee0,
       },
       token1: {
+        address: token1Address,
         claimed: amount1Claimed,
         unclaimed: unclaimedFee1,
         totalAmount: amount1Claimed + unclaimedFee1,
@@ -707,7 +709,7 @@ const getPositionFeesAmountFromNftId = async (
   }
 };
 
-const calculateAPY = (liquidity: number, totalFees: number, creationDate: Date): number => {
+export const calculateAPY = (liquidity: number, totalFees: number, creationDate: Date): number => {
   const currentDate = new Date();
   const daysActive = (currentDate.getTime() - new Date(creationDate).getTime()) / (1000 * 60 * 60 * 24);
 

@@ -1,0 +1,103 @@
+<ion-content>
+  <ion-grid fixed>
+    <ion-row class="ion-align-items-center ion-justify-content-center">
+      <ion-col size-xs="12" size-md="auto" class="ion-padding ion-text-center">
+        <ion-card>
+          <ion-card-content>
+            <ion-grid class="ion-text-start">
+              <ion-row>
+                <ion-col>
+                  <ion-card-subtitle> LPFolio </ion-card-subtitle>
+                </ion-col>
+              </ion-row>
+              @if(position) {
+              <ion-row
+                class="ion-align-items-center ion-justify-content-center"
+              >
+                <ion-col size="auto">
+                  <div class="token-pair">
+                    <img
+                      class="token-icon"
+                      [src]="position.token0.logoURI"
+                      [alt]="position.token0.symbol"
+                    />
+                    <img
+                      class="token-icon"
+                      [src]="position.token1.logoURI"
+                      [alt]="position.token1.symbol"
+                    />
+                  </div>
+                </ion-col>
+                <ion-col>
+                  <ion-card-title class="ion-margin-start">
+                    {{ position.token0.symbol }}/{{ position.token1.symbol }}
+                  </ion-card-title>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col size="12" class="">
+                  <ion-text [color]="position.apy > 0 ? 'success' : 'danger'">
+                    <b class="apy">
+                      {{ position.apy.toFixed(2) }}% <small>APR</small>
+                    </b>
+                  </ion-text>
+                  <br />
+                  <p>
+                    <small>
+                      Range from {{ position.lowerPrice | number : "1.2-2" }} to
+                      {{ position.upperPrice | number : "1.2-2" }}
+                    </small>
+                  </p>
+                  <!-- <br />
+                    <ion-text color="medium">
+                      <small>
+                        <span class="ion-hide-md-down">open from </span>{{
+                        position.createdTimestamp | date: 'MMM d, y' }}
+                      </small>
+                    </ion-text> -->
+                </ion-col>
+              </ion-row>
+              }
+
+              <!-- SKELETON -->
+              @if(!position && isLoading === true) {
+              <ion-row>
+                <ion-col size="12">
+                  <ion-skeleton-text
+                    animated
+                    class="skeleton-text"
+                    style="width: 100%; height: 32px;"
+                  ></ion-skeleton-text>
+                </ion-col>
+                <ion-col size="12">
+                  <ion-skeleton-text
+                    animated
+                    class="skeleton-text"
+                    style="width: 100%; height: 47px;"
+                  ></ion-skeleton-text>
+                </ion-col>
+                <ion-col size="12">
+                  <ion-skeleton-text
+                    animated
+                    class="skeleton-text"
+                    style="width: 60%; height: 16px;"
+                  ></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+              }
+            </ion-grid>
+
+          </ion-card-content>
+        </ion-card>
+        <ion-text color="medium" class="ion-text-center">
+          <small>
+            <span
+              >Track Uniswap LP positions with
+              <a href="https://lpfolio.web.app">LPFolio</a></span
+            >
+          </small>
+        </ion-text>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

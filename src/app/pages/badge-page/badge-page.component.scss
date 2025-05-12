@@ -1,0 +1,26 @@
+:host {
+
+  ion-content {
+    > ion-grid {
+      height: 100%;
+
+      > ion-row {
+        height: 100%;
+      }
+    }
+  }
+
+  .token-icon {
+    max-height: 32px;
+    max-width: 32px;
+  }
+
+  ion-card-title {
+    font-size: 1.3rem;
+    margin-left: 0px;
+  }
+
+  .apy {
+    font-size: 2rem;
+  }
+}
