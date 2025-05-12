@@ -618,10 +618,10 @@ const getPositionFeesAmountFromNftId = async (
       ,
       token0Address,
       token1Address,
-      fee,
-      tickLower,
-      tickUpper,
-      liquidity,
+      ,
+      ,
+      ,
+      ,
     ] = (await positionManagerContract.read["positions"]([nftId])) as [
       number,
       string,
@@ -636,23 +636,6 @@ const getPositionFeesAmountFromNftId = async (
     const nftOwner = (await positionManagerContract.read["ownerOf"]([
       nftId,
     ])) as [`0x${string}`];
-    // Get pool address from token addresses and fee
-    const poolAddress = await getPoolAddress(
-      token0Address,
-      token1Address,
-      fee,
-      chainId
-    );
-    const poolContract = getContract({
-      address: poolAddress,
-      abi: poolAbi,
-      client,
-    });
-    // Get sqrtPriceX96 from pool contract
-    const [sqrtPriceX96] = (await Promise.all([
-      poolContract.read["slot0"](),
-    ])) as [number];
-
     // Get token decimals
     const decimals0 = await getToken(chainId, token0Address).then(
       (token) => token.decimals
@@ -660,32 +643,6 @@ const getPositionFeesAmountFromNftId = async (
     const decimals1 = await getToken(chainId, token1Address).then(
       (token) => token.decimals
     );
-    const liquidityNumber = Number(liquidity.toString());
-    // Calculate amounts
-    let sqrtRatioA = +Math.sqrt(1.0001 ** tickLower).toFixed(18);
-    let sqrtRatioB = +Math.sqrt(1.0001 ** tickUpper).toFixed(18);
-    let currentTick = getTickAtSqrtRatio(sqrtPriceX96);
-    let currentRatio = +Math.sqrt(1.0001 ** currentTick).toFixed(18);
-    let amount0wei = 0;
-    let amount1wei = 0;
-    if (currentTick <= tickLower) {
-      amount0wei = Math.floor(
-        liquidityNumber *
-          ((sqrtRatioB - sqrtRatioA) / (sqrtRatioA * sqrtRatioB))
-      );
-    }
-    if (currentTick > tickUpper) {
-      amount1wei = Math.floor(liquidityNumber * (sqrtRatioB - sqrtRatioA));
-    }
-    if (currentTick >= tickLower && currentTick < tickUpper) {
-      amount0wei = Math.floor(
-        liquidityNumber *
-          ((sqrtRatioB - currentRatio) / (currentRatio * sqrtRatioB))
-      );
-      amount1wei = Math.floor(liquidityNumber * (currentRatio - sqrtRatioA));
-    }
-    const amount0 = amount0wei / 10 ** decimals0;
-    const amount1 = amount1wei / 10 ** decimals1;
     const args = {
       tokenId: nftId,
       recipient: nftOwner,
@@ -705,17 +662,44 @@ const getPositionFeesAmountFromNftId = async (
     const unclaimedFee1Wei = +result[1].toString();
     const unclaimedFee0 = +unclaimedFee0Wei / 10 ** decimals0;
     const unclaimedFee1 = +unclaimedFee1Wei / 10 ** decimals1;
-    console.log({ unclaimedFee0, unclaimedFee1 });
+    // get log from `Collect` event to get the clamed fees
+    const logs = await client.getLogs({
+      address: market.nftManager as `0x${string}`,
+      event: nonfungiblePositionManagerAbi.abi.find(
+        (e) => e.name === "Collect" && e.type === "event"
+      ) as AbiEvent,
+      args: { tokenId: nftId },
+      fromBlock: 0n,
+      toBlock: 'latest',
+    });
+    const {
+      token0: amount0Claimed,
+      token1: amount1Claimed,
+    } = logs.reduce((acc, log) => {
+      const args = log.args as {
+        amount0: bigint;
+        amount1: bigint;
+      };
+      const amount0 = Number(args.amount0);
+      const amount1 = Number(args.amount1);
+      return {
+        token0: acc.token0 + (amount0 / 10 ** decimals0),
+        token1: acc.token1 + (amount1 / 10 ** decimals1)
+      }
+    }, {
+      token0: 0,
+      token1: 0,
+    });
     return {
       token0: {
-        claimed: amount0,
+        claimed: amount0Claimed,
         unclaimed: unclaimedFee0,
-        totalAmount: amount0 + unclaimedFee0,
+        totalAmount: amount0Claimed + unclaimedFee0,
       },
       token1: {
-        claimed: amount1,
+        claimed: amount1Claimed,
         unclaimed: unclaimedFee1,
-        totalAmount: amount1 + unclaimedFee1,
+        totalAmount: amount1Claimed + unclaimedFee1,
       },
     };
   } catch (e) {
