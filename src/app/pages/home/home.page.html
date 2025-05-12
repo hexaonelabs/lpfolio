@@ -244,20 +244,42 @@
                     </div>
                   </ion-col>
                   <ion-col>
-                    <ion-card-title>
+                    <ion-card-title class="ion-margin-start">
                       {{ position.token0.symbol }}/{{ position.token1.symbol }}
                     </ion-card-title>
+                    <ion-button
+                      fill="clear"
+                      size="small"
+                      [color]="(position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper) ? 'danger' : getApyColor(position.apy)"
+                    >
+                      <ion-icon
+                        slot="start"
+                        name="ellipse"
+                        size="small"
+                        [color]="(position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper) ? 'danger' : getApyColor(position.apy)"
+                      />
+                      {{ ((position.tickCurrent < position.tickLower) ||
+                      (position.tickCurrent > position.tickUpper)) ? 'Out of Range' : 'In Range' }}
+                    </ion-button>
                   </ion-col>
-                  <ion-col size="auto">
-                    @if( position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper ) {
-                      <ion-text color="medium">
-                        <b>0%</b>
-                      </ion-text>
+                  <ion-col size="auto" class="ion-text-end">
+                    @if( position.tickCurrent < position.tickLower ||
+                    position.tickCurrent > position.tickUpper ) {
+                    <ion-text color="medium">
+                      <b>{{ position.apy.toFixed(2) }}%</b>
+                    </ion-text>
                     } @else {
-                      <ion-text [color]="getApyColor(position.apy)">
-                        <b>{{ position.apy.toFixed(2) }}%</b>
-                      </ion-text>
+                    <ion-text [color]="getApyColor(position.apy)">
+                      <b>{{ position.apy.toFixed(2) }}%</b>
+                    </ion-text>
                     }
+                    <br />
+                    <ion-text color="medium">
+                      <small>
+                        <span class="ion-hide-md-down">open from </span>{{
+                        position.createdTimestamp | date: 'MMM d, y' }}
+                      </small>
+                    </ion-text>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -299,7 +321,13 @@
                         ><b>
                           {{ (fees?.totalAllFeesUSD||0) | currency: 'USD':
                           'symbol': '1.2-2' }}
-                        </b></span
+                        </b>
+                        <small
+                          >({{(fees?.totalUnclaimedUSD||0)| currency: 'USD':
+                          'symbol': '1.2-2' }}<span class="ion-hide-md-down">
+                            unclaimed</span
+                          >)</small
+                        > </span
                       ><br />
                       <span>
                         <small>
@@ -339,6 +367,7 @@
                               ></div>
                               <div
                                 class="current-price-indicator"
+                                [style.backgroundColor]="(position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper) ? 'var(--ion-color-danger)!important' : getApyColor(position.apy)"
                                 [style.left]="getPriceRangePercentage(position, position.currentPrice) + '%'"
                               ></div>
                               <div
@@ -455,10 +484,11 @@
   </ion-grid>
 </ion-content>
 
-<ion-modal 
+<ion-modal
   [isOpen]="isTopPoolsOpen"
   [cssClass]="'modal-fullscreen'"
-  (didDismiss)="isTopPoolsOpen = false">
+  (didDismiss)="isTopPoolsOpen = false"
+>
   <ng-template>
     <ion-header>
       <ion-toolbar>
@@ -471,10 +501,11 @@
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar
-        (ionInput)="filterTopPools($any($event))"
-        placeholder="Search"
-        debounce="300"
-        class="ion-no-padding"/>
+          (ionInput)="filterTopPools($any($event))"
+          placeholder="Search"
+          debounce="300"
+          class="ion-no-padding"
+        />
       </ion-toolbar>
     </ion-header>
     <!-- Pool details content goes here -->
