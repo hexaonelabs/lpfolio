@@ -115,6 +115,7 @@ export class HomePage implements OnInit {
   positions$: Observable<Position[]>;
   activePositions$: Observable<Position[]>;
   isLoading: boolean = false;
+  pendingMessage$: Observable<string | null>;
   selectedNetwork: string = 'all';
   errorMessage: string = '';
   showToast: boolean = false;
@@ -175,6 +176,7 @@ export class HomePage implements OnInit {
         )
       )
     );
+    this.pendingMessage$ = this.uniswapService.pendingMessage$.asObservable();
   }
 
   async ngOnInit() {
@@ -271,5 +273,15 @@ export class HomePage implements OnInit {
   async filterTopPools($event: {
     detail: { value: string }}) {
     this.filterTerm = $event.detail.value;
+  }
+
+  async onAddressChange($event: {
+    detail: { value?: any }
+  }) {
+    if ($event.detail.value?.trim() === '') {
+      await this.storageService.clear();
+      this.address = '';
+      this.uniswapService.clearPositions();
+    }
   }
 }

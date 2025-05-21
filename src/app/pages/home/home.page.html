@@ -56,7 +56,9 @@
                     label="EVM Address"
                     label-placement="floating"
                     [(ngModel)]="address"
+                    [clearInput]="true"
                     placeholder="Enter Ethereum address (0x...)"
+                    (ionInput)="onAddressChange($event)"
                   ></ion-input>
                 </ion-col>
                 <ion-col size="auto" class="ion-padding-start">
@@ -99,7 +101,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Deposited liquidity</p>
+                  <p>Deposit liquidity</p>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -110,12 +112,12 @@
       <ion-col size="12" size-md="6" size-lg="3">
         <ion-card>
           <ion-card-header>
-            <ion-label color="medium">Total Fees</ion-label>
+            <ion-label color="medium">Earned Fees</ion-label>
           </ion-card-header>
           <ion-card-content>
             <ion-grid class="ion-no-padding">
-              <ion-row class="ion-align-items-center">
-                <ion-col>
+              <ion-row class="ion-align-items-baseline">
+                <ion-col size="auto">
                   <ion-card-title color="primary">
                     @if(!isLoading) { {{ totalFees | currency: 'USD': 'symbol':
                     '1.2-2'}} } @else {
@@ -126,10 +128,24 @@
                     }
                   </ion-card-title>
                 </ion-col>
+                <ion-col size="auto" class="ion-padding-start">
+                  <ion-text color="medium">
+                    @if(!isLoading) {
+                    <small
+                      >({{ totalUnclaimedFees | currency: 'USD': 'symbol':
+                      '1.2-2' }})</small
+                    >} @else {
+                    <ion-skeleton-text
+                      animated="true"
+                      style="width: 80px; height: 28px"
+                    />
+                    }
+                  </ion-text>
+                </ion-col>
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Earned fees</p>
+                  <p>Claimed <small>(Unclaimed)</small></p>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -214,7 +230,7 @@
         !errorMessage && isLoading) {
         <div class="loading-container">
           <ion-spinner name="circular"></ion-spinner>
-          <p>Fetching Uniswap V3 positions...</p>
+          <p>{{ (pendingMessage$|async) || 'Fetching Uniswap V3 positions...' }}</p>
         </div>
         } @if (positions.length === 0 && !errorMessage && !isLoading) {
         <div class="empty-state">
@@ -259,7 +275,8 @@
                         [color]="(position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper) ? 'danger' : getApyColor(position.apy)"
                       />
                       {{ ((position.tickCurrent < position.tickLower) ||
-                      (position.tickCurrent > position.tickUpper)) ? 'Out of Range' : 'In Range' }}
+                      (position.tickCurrent > position.tickUpper)) ? 'Out of
+                      Range' : 'In Range' }}
                     </ion-button>
                   </ion-col>
                   <ion-col size="auto" class="ion-text-end">
