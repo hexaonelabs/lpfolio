@@ -27,6 +27,7 @@ interface PoolDataRaw {
 
 export type UNISWAP_MARKET = {
   chain: Chain;
+  rpcUrl?: string;
   name: string;
   factory: `0x${string}`;
   nftManager: `0x${string}`;
@@ -54,6 +55,7 @@ export const UNISWAP_MARKETS: UNISWAP_MARKET[] = [
   },
   // {
   //   chain: base,
+  //   rpcUrl: "https://mainnet.base.org",
   //   name: "base",
   //   factory: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
   //   nftManager: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
@@ -74,18 +76,18 @@ const tokenAbi = parseAbi([
   "function balanceOf(address owner) view returns (uint256)",
 ]);
 
-export const getUniswapPositions = async (walletAddress: `0x${string}`, market: UNISWAP_MARKET) => {
+export const getUniswapPositions = async (walletAddress: `0x${string}`, market: UNISWAP_MARKET): Promise<Position[]> => {
   const cacheKey = `uniswap_positions_${walletAddress}_${market.name}`;
   const cachedPositions = lscache.get(cacheKey);
   if (cachedPositions) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Using cached positions");
     return cachedPositions;
   }
   try {
     const client = createPublicClient({
       chain: market.chain,
-      transport: http(),
+      transport: market.rpcUrl ? http(market.rpcUrl) : http(),
     });
     const nftContract = getContract({
       address: market.nftManager as `0x${string}`,
@@ -111,7 +113,7 @@ export const getUniswapPositions = async (walletAddress: `0x${string}`, market: 
       "Error fetching positions form market " + market.name + " Network:",
       error
     );
-    throw error;
+    return [];
   }
 };
 
@@ -122,7 +124,7 @@ const getPoolTVL = async (poolAddress: `0x${string}`, chainId: number) => {
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
 
   const poolContract = getContract({
@@ -175,7 +177,7 @@ const getPoolAddress = async (
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
 
   const factoryContract = getContract({
@@ -213,7 +215,7 @@ const getTokenData = async (
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
   const tokenContract = getContract({
     address: address,
@@ -239,59 +241,101 @@ const processAllPositions = async (
   balance: bigint,
   chainId: number
 ) => {
-  const positions: Position[] = [];
-
+  const tokenIndex: bigint[] = [];
   for (let i = 0n; i < balance; i++) {
-    const tokenId = await nftContract.read.tokenOfOwnerByIndex([
-      walletAddress,
-      i,
-    ]);
-    const position = await getPositionDetails(nftContract, tokenId);
-    if (position.liquidity === 0n) continue;
-
-    const poolData = await fetchPoolData(position, chainId);
-    if (!poolData) continue;
-
-    const positionData = await buildPositionData(position, poolData, chainId);
-    positions.push(positionData);
+    tokenIndex.push(i);
   }
-
+  const market = UNISWAP_MARKETS.find((market) => market.chain.id === chainId)!;
+  const client = createPublicClient({
+    chain: market.chain,
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
+  });
+  const tokenIds = await client.multicall({
+    contracts: tokenIndex.map((index) => ({
+      address: nftContract.address,
+      abi: nftContract.abi,
+      functionName: "tokenOfOwnerByIndex",
+      args: [walletAddress, index],
+    })),
+  }).then((responses: any) => {
+    return responses.map((response: any) => {
+      return response.result;
+    });
+  });
+  const positions: Position[] = await getPositionDetails(nftContract, tokenIds, market.chain.id )
+  .then((positions: PositionRaw[]) => {
+    return Promise.all(
+      positions.map(async (position) => {
+        if (position.liquidity === 0n) return null;
+        const poolData = await fetchPoolData(position, chainId);
+        if (!poolData) return null;
+        const positionData = await buildPositionData(
+          position,
+          poolData,
+          chainId
+        );
+        return positionData;
+      })
+    );
+  }).then((positions) => {
+    return positions.filter((position) => position !== null) as Position[];
+  });
   return positions;
 };
 
 export const getPositionDetails = async (
   nftContract: any,
-  tokenId: bigint
-): Promise<PositionRaw> => {
-  const [
-    ,
-    ,
-    // nonce et operator non utilisés
-    token0Address,
-    token1Address,
-    fee,
-    tickLower,
-    tickUpper,
-    liquidity,
-    feeGrowthInside1LastX128,
-    feeGrowthInside0LastX128,
-    tokensOwed0,
-    tokensOwed1,
-  ] = await nftContract.read.positions([tokenId], { blockTag: "latest" });
+  tokenIds: bigint[],
+  chainId: number
+): Promise<PositionRaw[]> => {
+  const market = UNISWAP_MARKETS.find((market) => market.chain.id === chainId)!;
+  const client = createPublicClient({
+    chain: market.chain,
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
+  });
+  const multicallResults = await client.multicall({
+    contracts: tokenIds.map((tokenId) => ({
+      address: nftContract.address,
+      abi: nftContract.abi,
+      functionName: "positions",
+      args: [tokenId],
+    })),
+  });
 
-  return {
-    token0: token0Address,
-    token1: token1Address,
-    fee,
-    feeGrowthInside1LastX128,
-    feeGrowthInside0LastX128,
-    tickLower,
-    tickUpper,
-    liquidity,
-    tokensOwed0,
-    tokensOwed1,
-    tokenId,
-  };
+  return multicallResults.map(
+    (result: any, index: number) => {
+      const [
+        nonce,
+        operator,
+        token0,
+        token1,
+        fee,
+        tickLower,
+        tickUpper,
+        liquidity,
+        feeGrowthInside0LastX128,
+        feeGrowthInside1LastX128,
+        tokensOwed0,
+        tokensOwed1,
+      ] = result.result;
+      return {
+        tokenId: tokenIds[index],
+        nonce: Number(nonce),
+        operator: operator as `0x${string}`,
+        token0: token0 as `0x${string}`,
+        token1: token1 as `0x${string}`,
+        fee: Number(fee),
+        tickLower: Number(tickLower),
+        tickUpper: Number(tickUpper),
+        liquidity: BigInt(liquidity),
+        feeGrowthInside0LastX128: BigInt(feeGrowthInside0LastX128),
+        feeGrowthInside1LastX128: BigInt(feeGrowthInside1LastX128),
+        tokensOwed0: BigInt(tokensOwed0),
+        tokensOwed1: BigInt(tokensOwed1),
+      } as PositionRaw;
+    }
+  )
+  
 };
 
 export const fetchPoolData = async (
@@ -304,7 +348,7 @@ export const fetchPoolData = async (
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
 
   const poolAddress = await getPoolAddress(
@@ -433,7 +477,7 @@ const formatPositionData = async (
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
   const poolContract = getContract({
     address: position.poolAddress as `0x${string}`,
@@ -558,7 +602,7 @@ const getPositionCreationTimestamp = async (
   }
   const client = createPublicClient({
     chain: market.chain,
-    transport: http(),
+    transport: market.rpcUrl ? http(market.rpcUrl) : http(),
   });
   // 1. Filtrer l'événement Transfer pour le tokenId
   const logs = await client.getLogs({
@@ -605,7 +649,7 @@ export const getPositionFeesAmountFromNftId = async (
   try {
     const client = createPublicClient({
       chain: market.chain,
-      transport: http(),
+      transport:market.rpcUrl ? http(market.rpcUrl) : http(),
     });
     const positionManagerContract = getContract({
       address: market.nftManager as `0x${string}`,
