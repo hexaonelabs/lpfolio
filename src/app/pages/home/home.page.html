@@ -24,7 +24,7 @@
                     Track your LP positions and performance.
                   </p>
                 </ion-col>
-                <ion-col size="auto">
+                <!-- <ion-col size="auto">
                   <ion-button
                     class="ion-no-margin"
                     fill="clear"
@@ -35,7 +35,7 @@
                     <ion-icon name="trophy-outline"></ion-icon>
                     Top Pools
                   </ion-button>
-                </ion-col>
+                </ion-col> -->
               </ion-row>
             </ion-grid>
           </ion-toolbar>
@@ -226,19 +226,25 @@
             </ion-segment>
           </div> -->
 
-        @if (positions$|async; as positions) { @if(positions.length === 0 &&
-        !errorMessage && isLoading) {
-        <div class="loading-container">
-          <ion-spinner name="circular"></ion-spinner>
-          <p>{{ (pendingMessage$|async) || 'Fetching Uniswap V3 positions...' }}</p>
-        </div>
-        } @if (positions.length === 0 && !errorMessage && !isLoading) {
-        <div class="empty-state">
-          <ion-icon name="walletOutline" size="large"></ion-icon>
-          <h3>No Positions Found</h3>
-          <p>Enter an EVM address to view Uniswap V3 positions</p>
-        </div>
-        }
+        @if (positions$|async; as positions) {
+        <ng-container>
+          @if(positions.length === 0 && !errorMessage && isLoading) {
+          <div class="loading-container">
+            <ion-spinner name="circular"></ion-spinner>
+            <p>
+              {{ (pendingMessage$|async) || 'Fetching Uniswap V3 positions...'
+              }}
+            </p>
+          </div>
+          } @if (positions.length === 0 && !errorMessage && !isLoading) {
+          <div class="empty-state">
+            <ion-icon name="walletOutline" size="large"></ion-icon>
+            <h3>No Positions Found</h3>
+            <p>Enter an EVM address to view Uniswap V3 positions</p>
+          </div>
+          }
+        </ng-container>
+
         <div class="positions-container">
           @for (position of positions; track position.id) {
           <ion-card class="position-card ion-margin-bottom">
@@ -275,8 +281,7 @@
                         [color]="(position.tickCurrent < position.tickLower || position.tickCurrent > position.tickUpper) ? 'danger' : getApyColor(position.apy)"
                       />
                       {{ ((position.tickCurrent < position.tickLower) ||
-                      (position.tickCurrent > position.tickUpper)) ? 'Out of
-                      Range' : 'In Range' }}
+                      (position.tickCurrent > position.tickUpper)) ? "Out of Range" : `In Range` }}
                     </ion-button>
                   </ion-col>
                   <ion-col size="auto" class="ion-text-end">
@@ -454,6 +459,35 @@
       </ion-col>
     </ion-row>
 
+    <!-- open Top Pools -->
+    <ion-row>
+      <ion-col>
+        <ion-card class="address-card">
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-text color="medium">
+                    <h3>Top pools</h3>
+                  </ion-text>
+                </ion-col>
+                <ion-col size="auto" class="ion-padding-start">
+                  <ion-button
+                    fill="clear"
+                    color="primary"
+                    size="small"
+                    (click)="isTopPoolsOpen = true"
+                  >
+                    Open
+                    <ion-icon size="small" slot="end" name="trophy-outline"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
     <!-- open LP Hedge Calculator -->
     <ion-row>
       <ion-col>
@@ -475,6 +509,38 @@
                     routerDirection="forward"
                   >
                     Open
+                    <ion-icon size="small" slot="end" name="open-outline"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <!-- open DeTrack -->
+    <ion-row>
+      <ion-col>
+        <ion-card class="address-card">
+          <ion-card-content>
+            <ion-grid class="ion-no-padding">
+              <ion-row class="ion-align-items-center">
+                <ion-col>
+                  <ion-text color="medium">
+                    <h3>Wallet tracking</h3>
+                  </ion-text>
+                </ion-col>
+                <ion-col size="auto" class="ion-padding-start">
+                  <ion-button
+                    fill="clear"
+                    color="primary"
+                    size="small"
+                    href="https://detrack.web.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open
+                    <ion-icon size="small" slot="end" name="open-outline"></ion-icon>
                   </ion-button>
                 </ion-col>
               </ion-row>
