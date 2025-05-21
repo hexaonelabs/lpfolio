@@ -24,8 +24,14 @@
                     Track your LP positions and performance.
                   </p>
                 </ion-col>
-                <!-- <ion-col size="auto">
-                  <ion-button
+                <ion-col size="auto" class="ion-padding-horizontal">
+                  @for (market of availableMarkets; track market.chain.id) {
+                    <img 
+                      class="network-icon"
+                      [src]="market.logoURI"
+                      [alt]="market.name" />
+                  }
+                  <!-- <ion-button
                     class="ion-no-margin"
                     fill="clear"
                     color="primary"
@@ -34,8 +40,8 @@
                   >
                     <ion-icon name="trophy-outline"></ion-icon>
                     Top Pools
-                  </ion-button>
-                </ion-col> -->
+                  </ion-button> -->
+                </ion-col>
               </ion-row>
             </ion-grid>
           </ion-toolbar>

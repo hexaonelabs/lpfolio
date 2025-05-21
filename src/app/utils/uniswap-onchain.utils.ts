@@ -31,6 +31,7 @@ export type UNISWAP_MARKET = {
   name: string;
   factory: `0x${string}`;
   nftManager: `0x${string}`;
+  logoURI: string;
 }
 
 // See https://docs.uniswap.org/contracts/v3/reference/deployments/
@@ -40,18 +41,21 @@ export const UNISWAP_MARKETS: UNISWAP_MARKET[] = [
     name: "mainnet",
     factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    logoURI: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
   },
   {
     chain: arbitrum,
     name: "arbitrum",
     factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    logoURI: `${arbitrum.blockExplorers.default.url}/assets/arbitrum/images/svg/logos/chain-light.svg`,
   },
   {
     chain: optimism,
     name: "optimism",
     factory: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     nftManager: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    logoURI: `${optimism.blockExplorers.default.url}/assets/optimism/images/svg/logos/chain-light.svg`,
   },
   // {
   //   chain: base,
@@ -59,6 +63,7 @@ export const UNISWAP_MARKETS: UNISWAP_MARKET[] = [
   //   name: "base",
   //   factory: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
   //   nftManager: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+  //   logoURI: `${base.blockExplorers.default.url}/assets/base/images/svg/logos/chain-light.svg`,
   // },
 ];
 const nftPositionManagerAbi = parseAbi([

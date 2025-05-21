@@ -7,6 +7,22 @@
   h1 {
     font-weight: 600;
   }
+  
+  ion-col {
+    .network-icon {
+      width: 22px;
+      height: 22px;
+      margin-right: -8px;
+      background-color: var(--ion-background-color);
+      border-radius: 100%;
+      border: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
+    }
+    // last .network-icon of ion-col
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
   .address-card {
     margin-bottom: 16px;
     border-radius: 12px;

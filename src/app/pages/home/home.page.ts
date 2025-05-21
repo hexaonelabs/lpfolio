@@ -59,6 +59,7 @@ import {
 import {
   calculateRelativeAPY,
   openPositionDetails,
+  UNISWAP_MARKETS,
 } from '../../utils/uniswap-onchain.utils';
 import { map, Observable, tap } from 'rxjs';
 import { createPublicClient, http } from 'viem';
@@ -111,6 +112,7 @@ const UIElements = [
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
+  availableMarkets = UNISWAP_MARKETS;
   address: string = '';
   positions$: Observable<Position[]>;
   activePositions$: Observable<Position[]>;
